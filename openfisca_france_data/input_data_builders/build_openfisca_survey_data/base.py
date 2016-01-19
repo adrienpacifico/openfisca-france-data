@@ -32,7 +32,11 @@ def year_specific_by_generic_data_frame_name(year):
         foyer = "foyer" + yr,  # Enquête revenu fiscaux, table foyer # compressed file for 2006
         erf_indivi = "indivi{}".format(yr),  # Enquête revenu fiscaux, table individu
         eec_indivi = "irf" + yr + "e" + yr + "t4",  # Enquête emploi en continue, table individu
-        eec_cmp_1 = "icomprf" + yr + "e" + yr1 + "t1",  # Enquête emploi en continue, table complémentaire 1
+        eec_cmp_1 = "icomprf" + yr + "e" + yr1 + "t1",  # Enquête emploi en continue, table complémentaire de l'année suivante
         eec_cmp_2 = "icomprf" + yr + "e" + yr1 + "t2",
         eec_cmp_3 = "icomprf" + yr + "e" + yr1 + "t3",
+        eec_cmp_3 = "icomprf" + yr + "e" + yr1 + "t4",
+        eec_cmp_1 = "icomprf" + yr + "e" + yr + "t1",  # Enquête emploi en continue, table complémentaires de l'année en cours
+        eec_cmp_2 = "icomprf" + yr + "e" + yr + "t2",
+        eec_cmp_3 = "icomprf" + yr + "e" + yr + "t3",
         )
