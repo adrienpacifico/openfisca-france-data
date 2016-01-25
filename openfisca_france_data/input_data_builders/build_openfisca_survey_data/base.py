@@ -26,17 +26,24 @@
 def year_specific_by_generic_data_frame_name(year):
     yr = str(year)[2:]
     yr1 = str(year + 1)[2:]
+    yr2 = str(year + 2)[2:]
+    yr_1 = str(year - 1)[2:]
     return dict(
         erf_menage = "menage" + yr,  # Enquête revenu fiscaux, table ménage
         eec_menage = "mrf" + yr + "e" + yr + "t4",  # Enquête emploi en continu, table ménage
         foyer = "foyer" + yr,  # Enquête revenu fiscaux, table foyer # compressed file for 2006
         erf_indivi = "indivi{}".format(yr),  # Enquête revenu fiscaux, table individu
-        eec_indivi = "irf" + yr + "e" + yr + "t4",  # Enquête emploi en continue, table individu
-        eec_cmp_1 = "icomprf" + yr + "e" + yr1 + "t1",  # Enquête emploi en continue, table complémentaire de l'année suivante
-        eec_cmp_2 = "icomprf" + yr + "e" + yr1 + "t2",
-        eec_cmp_3 = "icomprf" + yr + "e" + yr1 + "t3",
-        eec_cmp_3 = "icomprf" + yr + "e" + yr1 + "t4",
-        eec_cmp_1 = "icomprf" + yr + "e" + yr + "t1",  # Enquête emploi en continue, table complémentaires de l'année en cours
-        eec_cmp_2 = "icomprf" + yr + "e" + yr + "t2",
-        eec_cmp_3 = "icomprf" + yr + "e" + yr + "t3",
+        eec_indivi = "irf" + yr + "e" + yr + "t4",  # Enquête emploi en continue, table individu (mois de référence de l'ERFS)
+        eec_cmp__4 = "icomprf" + yr + "e" + yr_1 + "t1",  # Enquête emploi en continue, table complémentaires de l'année précédente
+        eec_cmp__3 = "icomprf" + yr + "e" + yr_1 + "t2",
+        eec_cmp__2 = "icomprf" + yr + "e" + yr_1 + "t3",
+        eec_cmp__1 = "icomprf" + yr + "e" + yr_1 + "t4",
+        eec_cmp1 = "icomprf" + yr + "e" + yr + "t1",  # Enquête emploi en continue, table complémentaires de l'année en cours
+        eec_cmp2 = "icomprf" + yr + "e" + yr + "t2",
+        eec_cmp3 = "icomprf" + yr + "e" + yr + "t3",
+        eec_cmp5 = "icomprf" + yr + "e" + yr1 + "t1",  # Enquête emploi en continue, table complémentaire de l'année suivante
+        eec_cmp6 = "icomprf" + yr + "e" + yr1 + "t2",
+        eec_cmp7 = "icomprf" + yr + "e" + yr1 + "t3",
+        eec_cmp8 = "icomprf" + yr + "e" + yr1 + "t4",
+        eec_cmp9 = "icomprf" + yr + "e" + yr2 + "t4", # EEC 2 ans apres.
         )
