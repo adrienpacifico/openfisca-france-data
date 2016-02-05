@@ -34,7 +34,7 @@ from openfisca_france_data.temporary import temporary_store_decorator
 log = logging.getLogger(__name__)
 
 
-@temporary_store_decorator(file_name = 'erfs')
+@temporary_store_decorator(file_name = 'erfs_mensualized')
 def invalide(temporary_store = None, year = None):
 
     assert temporary_store is not None

@@ -366,7 +366,7 @@ def create_indivim_menagem(temporary_store = None, year = None):
     del erfind, eecind
 
 
-@temporary_store_decorator(config_files_directory = config_files_directory, file_name = "erfs")
+@temporary_store_decorator(config_files_directory = config_files_directory, file_name = "erfs_mensualized")
 def create_enfants_a_naitre(temporary_store = None, year = None):
     '''
     '''
