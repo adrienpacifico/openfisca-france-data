@@ -50,7 +50,7 @@ from openfisca_survey_manager.survey_collections import SurveyCollection
 log = logging.getLogger(__name__)
 
 
-@temporary_store_decorator(config_files_directory = config_files_directory, file_name = 'erfs')
+@temporary_store_decorator(config_files_directory = config_files_directory, file_name = "erfs_mensualized")
 def sif(temporary_store = None, year = None):
     assert temporary_store is not None
     assert year is not None
@@ -169,7 +169,7 @@ def sif(temporary_store = None, year = None):
     gc.collect()
 
 
-@temporary_store_decorator(config_files_directory = config_files_directory, file_name = 'erfs')
+@temporary_store_decorator(config_files_directory = config_files_directory, file_name = "erfs_mensualized")
 def foyer_all(temporary_store = None, year = None):
     year_specific_by_generic = year_specific_by_generic_data_frame_name(year)
 

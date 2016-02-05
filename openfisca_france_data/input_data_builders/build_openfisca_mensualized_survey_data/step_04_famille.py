@@ -58,7 +58,7 @@ def subset_base(base, famille):
     return base[~(base.noindiv.isin(famille.noindiv.values))].copy()
 
 
-@temporary_store_decorator(config_files_directory = config_files_directory, file_name = 'erfs')
+@temporary_store_decorator(config_files_directory = config_files_directory, file_name = "erfs_mensualized")
 def famille(temporary_store = None, year = None):
     assert temporary_store is not None
     assert year is not None

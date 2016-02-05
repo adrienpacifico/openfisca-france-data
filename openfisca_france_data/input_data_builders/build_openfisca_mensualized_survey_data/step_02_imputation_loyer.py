@@ -508,7 +508,7 @@ def create_comparable_logement_data_frame(temporary_store = None, year = None):
     return logement
 
 
-@temporary_store_decorator(config_files_directory = config_files_directory, file_name = 'erfs')
+@temporary_store_decorator(config_files_directory = config_files_directory, file_name = 'erfs_mensualized')
 def imputation_loyer(temporary_store = None, year = None):
     assert temporary_store is not None
     assert year is not None
