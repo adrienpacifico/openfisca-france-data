@@ -47,7 +47,7 @@ def create_indivim_menagem(temporary_store = None, year = None):
     """
     # Prepare the some useful merged tables
     import ipdb
-    ipdb.set_trace()
+
 
     assert temporary_store is not None
     assert year is not None
@@ -69,8 +69,6 @@ def create_indivim_menagem(temporary_store = None, year = None):
     assert (eec_1.shape < eec_2.shape) &  (eec_2.shape < eec_3.shape)  &  (eec_3.shape < eecind.shape) # due to the survey  eec_1.shape is 3/6 of eecind.shape ; eec_2 is 4/6 ; and eec_3 is 5/6.
     
 
-    import pdb
-    #ipdb.set_trace()
 
 
     # travail sur la cohérence entre les bases
@@ -95,7 +93,7 @@ def create_indivim_menagem(temporary_store = None, year = None):
     attrition_ident = eec_1[(~(eec_1.ident.isin(eec_2.ident.values) & eec_1.ident.isin(eec_3.ident.values)))].ident
     #attrition_ident_set = set(attrition.ident)
     #print len(attrition_ident_set)  #1326
-    pdb.set_trace()
+
     #assert numpy.all(attrition == attrition &  eec_1.ident.isin(eecind.ident.values))
     print eec_1.shape
     eec_1 = eec_1[~eec_1.ident.isin(attrition_ident.values)].copy()
@@ -112,7 +110,7 @@ def create_indivim_menagem(temporary_store = None, year = None):
 
     #explication : les attritions des gens qui sont dans eec_1 mais pas dans 2 ou 3
 
-    pdb.set_trace()
+
 
 
 
@@ -157,7 +155,7 @@ def create_indivim_menagem(temporary_store = None, year = None):
                 print situation_mois, str(2 - sp).zfill(2), trim
 
 
-    pdb.set_trace()
+
 
 
     #pour comprendre
@@ -176,10 +174,10 @@ def create_indivim_menagem(temporary_store = None, year = None):
 
     #trouver identifiant individuel personne, le mettre en index, faire les combine first.
 
-    eecind.set_index('noindiv', inplace = True)
-    eec_1.set_index('noindiv', inplace = True)
-    eec_2.set_index('noindiv', inplace = True)
-    eec_3.set_index('noindiv', inplace = True)
+    eecind.set_index('noindiv', inplace = True, drop = False)
+    eec_1.set_index('noindiv', inplace = True, drop = False)
+    eec_2.set_index('noindiv', inplace = True, drop = False)
+    eec_3.set_index('noindiv', inplace = True, drop = False)
 
     eecind_mensualized = eecind.combine_first(eec_1)
     eecind_mensualized = eecind_mensualized.combine_first(eec_2)
@@ -207,7 +205,7 @@ def create_indivim_menagem(temporary_store = None, year = None):
 
     # fusion enquete emploi et source fiscale
     menagem = erfmen.merge(eecmen)
-    indivim = eecind.merge(erfind, on = ['noindiv', 'ident', 'noi'], how = "inner")
+    indivim = eecind_mensualized.merge(erfind, on = ['noindiv', 'ident', 'noi'], how = "inner")
 
     # optimisation des types? Controle de l'existence en passant
     # TODO: minimal dtype
@@ -234,6 +232,15 @@ def create_indivim_menagem(temporary_store = None, year = None):
         'txtppb',
         ])
 
+    ###### Rajouté à l'arache, voir en amont pourquoi le dtype d'acteu est changé par le set_index
+    ##### TODO: CRADE !
+
+    for var in var_list:
+         indivim[var] = indivim[var].astype('int8')
+
+
+
+    ####
     for var in var_list:
         assert numpy.issubdtype(indivim[var].dtype , numpy.integer), "Variable {} dtype is {} and should be an integer".format(
             var, indivim[var].dtype)
@@ -242,16 +249,15 @@ def create_indivim_menagem(temporary_store = None, year = None):
     # création de variables#
     ########################
 
-#
-# 1
-# 2 3 4 5 6
-# Sans objet (réinterrogation) ou non renseigné
-# Occupe un emploi (salarié, à votre compte, y compris aide d'une personne dans son travail, un apprentissage sous contrat ou un stage rémunéré)
-# Etudes (élèves, étudiants) ou stage non rémunéré
-# Chômage (inscrit ou non à Pôle emploi (ex ANPE))
-# Retraite ou préretraite (ancien salarié ou ancien indépendant)
-# Femme ou Homme au foyer
-# Autre inactif
+# codage SP
+
+
+# 1 Occupe un emploi (salarié, à votre compte, y compris aide d'une personne dans son travail, un apprentissage sous contrat ou un stage rémunéré)
+# 2 Etudes (élèves, étudiants) ou stage non rémunéré
+# 3 Chômage (inscrit ou non à Pôle emploi (ex ANPE))
+# 4 Retraite ou préretraite (ancien salarié ou ancien indépendant)
+# 5 Femme ou Homme au foyer
+# 6 Autre inactif
 #
 # recode = sp
 # 8 = 6
@@ -263,40 +269,50 @@ def create_indivim_menagem(temporary_store = None, year = None):
 
 
 
+#TODO : faire jolie boucle
 
 
-#   actrec : activité recodée comme preconisé par l'INSEE p84 du guide utilisateur
-    indivim["actrec_mensualized"] = numpy.nan
-    # Attention : Q: pas de 6 ?!! A : Non pas de 6, la variable recodée de l'INSEE (voit p84 du guide methodo), ici \
-    # la même nomenclature à été adopée
-    # 3: contrat a durée déterminée
-    indivim.actrec_mensualized.loc[indivim.sp == 1] = 1     #TODO : voir si dans les réinterrogations on peut distinguer les cdd, mis en occupe emploi
-    # 8 : femme (homme) au foyer, autre inactif
-    indivim.actrec_mensualized.loc[indivim.acteu == 3] = 6
-    # 1 : actif occupé non salarié
-    #filter1 = (indivim.acteu == 1) & (indivim.stc.isin([1, 3]))  # actifs occupés non salariés à son compte ou pour un #TODO: IDEM
-    indivim.actrec_mensualized.loc[indivim.sp == 1] = 1                              # membre de sa famille
-    # 2 : salarié pour une durée non limitée
-    #filter2 = (indivim.acteu == 1) & (((indivim.stc == 2) & (indivim.contra == 1)) | (indivim.titc == 2))
-    indivim.actrec_mensualized.loc[indivim.sp == 1] = 1 #TODO: IDEM
-    # 4 : au chomage
-    filter4 = (indivim.acteu == 2) | ((indivim.acteu == 3) & (indivim.mrec == 1))
-    indivim.actrec_mensualized.loc[indivim.sp == 1] = 3
-    # 5 : élève étudiant , stagiaire non rémunéré
-    filter5 = (indivim.acteu == 3) & ((indivim.forter == 2) | (indivim.rstg == 1))
-    indivim.actrec_mensualized.loc[indivim.sp == 3] = 5
-    # 7 : retraité, préretraité, retiré des affaires unchecked
-    filter7 = (indivim.acteu == 3) & ((indivim.retrai == 1) | (indivim.retrai == 2))
-    indivim.actrec_mensualized.loc[indivim.sp == 4] = 7
-    # 9 : probablement enfants de - de 16 ans
-    indivim.actrec_mensualized.loc[indivim.acteu == 0] = 9  #TODO: distinguer les retraités des enfants de moins de 16 ans
+    for month in range(1,13):
+        sitmoi = "situation_mois{}".format(month)
+        actrec = "actrec_mois{}".format(month)
 
+    #   actrec : activité recodée comme preconisé par l'INSEE p84 du guide utilisateur
+        indivim["actrec_mois{}".format(month)] = numpy.nan
+        # 3: contrat a durée déterminée
+        indivim[actrec].loc[indivim[sitmoi] == 1] = 3     #TODO : voir si dans les réinterrogations on peut distinguer les cdd, mis en occupe emploi
+        # 8 : femme (homme) au foyer, autre inactif
+        indivim[actrec].loc[indivim[sitmoi] == 6] = 8
+        # 1 : actif occupé non salarié
+        #filter1 = (indivim.acteu == 1) & (indivim.stc.isin([1, 3]))  # actifs occupés non salariés à son compte ou pour un #TODO: IDEM
+        indivim[actrec].loc[indivim[sitmoi] == 1] = 1                              # membre de sa famille
+        # 2 : salarié pour une durée non limitée
+        #filter2 = (indivim.acteu == 1) & (((indivim.stc == 2) & (indivim.contra == 1)) | (indivim.titc == 2))
+        indivim[actrec].loc[indivim[sitmoi] == 1] = 2 #TODO: IDEM
+        # 4 : au chomage
+        filter4 = (indivim.acteu == 2) | ((indivim.acteu == 3) & (indivim.mrec == 1))
+        indivim[actrec].loc[indivim[sitmoi] == 3] = 4
+        # 5 : élève étudiant , stagiaire non rémunéré
+        filter5 = (indivim.acteu == 3) & ((indivim.forter == 2) | (indivim.rstg == 1))
+        indivim[actrec].loc[indivim[sitmoi] == 2] = 5
+        # 7 : retraité, préretraité, retiré des affaires unchecked
+        filter7 = (indivim.acteu == 3) & ((indivim.retrai == 1) | (indivim.retrai == 2))
+        indivim[actrec].loc[indivim[sitmoi] == 4] = 7
+        # 9 : probablement enfants de - de 16 ans
+        indivim[actrec].loc[indivim[actrec] == 0] = 9  #TODO: distinguer les retraités des enfants de moins de 16 ans
+        indivim[actrec].loc[indivim[actrec].isnull()] = 9 # Attention très crade, transforme les séquences des retraités et des mineurs NAN en mineurs... #TODO : corriger
 
+        #ipdb.set_trace()
 
+        #assert indivim[actrec].isnull().value_counts() == indivim[sitmoi].isnull().value_counts() # TODO : plus de sitmois null que d'actrec, pourquoi, pas normal ?!
 
-    indivim.actrec = indivim.actrec.astype("int8")
-    assert_dtype(indivim.actrec, "int8")
-    assert indivim.actrec.isin(range(1, 10)).all(), 'actrec values are outside the interval [1, 9]'
+        indivim[actrec].fillna(value = 0, inplace = True)
+        indivim[actrec] = indivim[actrec].astype("int8")
+
+        #assert indivim[actrec].isnull().value_counts() == indivim[sitmoi].isnull().value_counts()
+
+    for month in range(1,13):
+        assert_dtype(indivim[actrec], "int8")
+        assert indivim[actrec].isin(range(0, 10)).all(), 'actrec values are outside the interval [1, 9]' #mis 0 pour les NaN # TODO : se débrouiller pour mieux gérer le truc.
 
 
 
@@ -366,7 +382,7 @@ def create_indivim_menagem(temporary_store = None, year = None):
     del erfind, eecind
 
 
-@temporary_store_decorator(config_files_directory = config_files_directory, file_name = "erfs_mensualized")
+@temporary_store_decorator(config_files_directory = config_files_directory, file_name = "erfs_mensualized")  #TODO : find how to catch a child birth during the year
 def create_enfants_a_naitre(temporary_store = None, year = None):
     '''
     '''
@@ -402,9 +418,9 @@ def create_enfants_a_naitre(temporary_store = None, year = None):
         'titc',
         ]
     year_specific_by_generic = year_specific_by_generic_data_frame_name(year)
-    eeccmp1 = survey.get_values(table = year_specific_by_generic["eec_cmp_1"], variables = individual_vars)
-    eeccmp2 = survey.get_values(table = year_specific_by_generic["eec_cmp_2"], variables = individual_vars)
-    eeccmp3 = survey.get_values(table = year_specific_by_generic["eec_cmp_3"], variables = individual_vars)
+    eeccmp1 = survey.get_values(table = year_specific_by_generic["eec_cmp1"], variables = individual_vars) # TODO : check ça prend les enfants de l'année après pas d'avant...
+    eeccmp2 = survey.get_values(table = year_specific_by_generic["eec_cmp2"], variables = individual_vars)
+    eeccmp3 = survey.get_values(table = year_specific_by_generic["eec_cmp3"], variables = individual_vars)
     tmp = eeccmp1.merge(eeccmp2, how = "outer")
     enfants_a_naitre = tmp.merge(eeccmp3, how = "outer")
 

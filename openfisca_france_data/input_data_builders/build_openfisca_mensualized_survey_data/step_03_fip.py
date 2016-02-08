@@ -40,6 +40,8 @@ from openfisca_france_data.input_data_builders.build_openfisca_survey_data.base 
 from openfisca_france_data.temporary import temporary_store_decorator
 from openfisca_survey_manager.survey_collections import SurveyCollection
 
+import ipdb
+
 
 log = logging.getLogger(__name__)
 
@@ -70,10 +72,12 @@ def create_fip(temporary_store = None, year = None):
     foyer = survey.get_values(table = year_specific_by_generic["foyer"], variables = erfFoyVar)
     foyer.replace({'anaisenf': {'NA': np.nan}}, inplace = True)
 
+    ipdb.set_trace()
+
     log.info(u"Etape 1 : on récupere les personnes à charge des foyers")
     log.info(u"    1.1 : Création des codes des enfants")
     foyer['anaisenf'] = foyer['anaisenf'].astype('string')
-    nb_pac_max = len(max(foyer['anaisenf'], key=len)) / 5
+    nb_pac_max = len(max(foyer['anaisenf'], key=len)) / 5 # TODO : pourquoi 5 ?
     log.info(u"il ya a au maximum {} pac par foyer".format(nb_pac_max))
 
     # Separating the string coding the pac of each "déclaration".
@@ -177,6 +181,7 @@ def create_fip(temporary_store = None, year = None):
 
     del pac_ind1['key1'], pac_ind2['key2']
 
+    ipdb.set_trace()
     if len(pac_ind1.index) == 0:
         if len(pac_ind2.index) == 0:
             log.info(u"Warning : no link between pac and noindiv for both pacInd1&2")
