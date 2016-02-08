@@ -33,10 +33,10 @@ from numpy import where
 
 from openfisca_france_data.temporary import temporary_store_decorator
 from openfisca_france_data import default_config_files_directory as config_files_directory
-from openfisca_france_data.input_data_builders.build_openfisca_survey_data.base import (
+from openfisca_france_data.input_data_builders.build_openfisca_mensualized_survey_data.base import (
     year_specific_by_generic_data_frame_name
     )
-from openfisca_france_data.input_data_builders.build_openfisca_survey_data.utils import print_id, control
+from openfisca_france_data.input_data_builders.build_openfisca_mensualized_survey_data.utils import print_id, control
 from openfisca_survey_manager.survey_collections import SurveyCollection
 
 
