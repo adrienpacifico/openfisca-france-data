@@ -60,26 +60,12 @@ def create_indivim_menagem(temporary_store = None, year = None):
     erfind = survey.get_values(table = year_specific_by_generic["erf_indivi"])
     eecind = survey.get_values(table = year_specific_by_generic["eec_indivi"])
 
-    eec_1 = survey.get_values(table = year_specific_by_generic["eec_cmp1"])
-    eec_2 = survey.get_values(table = year_specific_by_generic["eec_cmp2"])
-    eec_3 = survey.get_values(table = year_specific_by_generic["eec_cmp3"])
-
-    assert (eec_1.shape < eec_2.shape) &  (eec_2.shape < eec_3.shape)  &  (eec_3.shape < eecind.shape) # due to the survey  eec_1.shape is 3/6 of eecind.shape ; eec_2 is 4/6 ; and eec_3 is 5/6.
-    
-
-
-
-
     # travail sur la cohérence entre les bases
     noappar_m = eecmen[~(eecmen.ident.isin(erfmen.ident.values))].copy()
 
     noappar_i = eecmen[~(eecind.ident.isin(erfind.ident.values))].copy()
     noappar_i = noappar_i.drop_duplicates(subset = 'ident', take_last = True)
     # TODO: vérifier qu'il n'y a théoriquement pas de doublon
-
-
-
-
 
     difference = set(noappar_i.ident).symmetric_difference(noappar_m.ident)
     intersection = set(noappar_i.ident) & set(noappar_m.ident)
