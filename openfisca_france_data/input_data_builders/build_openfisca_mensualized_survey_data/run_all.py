@@ -29,7 +29,7 @@ import os
 
 
 from openfisca_france_data import default_config_files_directory as config_files_directory
-from openfisca_france_data.input_data_builders.build_openfisca_survey_data import (  # analysis:ignore
+from openfisca_france_data.input_data_builders.build_openfisca_mensualized_survey_data import (  # analysis:ignore
     step_01_pre_processing as pre_processing,
     step_02_imputation_loyer as imputation_loyer,
     step_03_fip as fip,
@@ -68,7 +68,7 @@ def run_all(year = None, check = False):
     invalides.invalide(year = year)
     final.final(year = year, check = check)
 
-    temporary_store = get_store(file_name = 'erfs')
+    temporary_store = get_store(file_name = 'erfs_mensualized')
     data_frame = temporary_store['input_{}'.format(year)]
     # Saving the data_frame
     openfisca_survey_collection = SurveyCollection(name = "openfisca", config_files_directory = config_files_directory)
