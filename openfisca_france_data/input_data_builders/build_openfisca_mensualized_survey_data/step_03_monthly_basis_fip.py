@@ -35,16 +35,15 @@ import numpy as np
 
 
 from openfisca_france_data import default_config_files_directory as config_files_directory
-from openfisca_france_data.input_data_builders.build_openfisca_survey_data.base import (
+from openfisca_france_data.input_data_builders.build_openfisca_mensualized_survey_data.base import (
     year_specific_by_generic_data_frame_name)
 from openfisca_france_data.temporary import temporary_store_decorator
 from openfisca_survey_manager.survey_collections import SurveyCollection
 
-import ipdb
+import pdb
 
 
 log = logging.getLogger(__name__)
-
 
 @temporary_store_decorator(config_files_directory = config_files_directory, file_name = "erfs_mensualized")
 def create_fip(temporary_store = None, year = None):
@@ -57,6 +56,8 @@ def create_fip(temporary_store = None, year = None):
     # Some individuals are declared as 'personne à charge' (pac) on 'tax forms'
     # but are not present in the erf or eec tables.
     # We add them to ensure consistency between concepts.
+
+    pdb.set_trace()
 
     year_specific_by_generic = year_specific_by_generic_data_frame_name(year)
 
