@@ -37,6 +37,7 @@ from openfisca_france_data.input_data_builders.build_openfisca_mensualized_surve
 from openfisca_survey_manager.survey_collections import SurveyCollection
 
 
+
 log = logging.getLogger(__name__)
 
 
@@ -46,8 +47,6 @@ def create_indivim_menagem(temporary_store = None, year = None):
     Création des tables ménages et individus concaténée (merged)
     """
     # Prepare the some useful merged tables
-    import ipdb
-
 
     assert temporary_store is not None
     assert year is not None
@@ -184,7 +183,10 @@ def create_indivim_menagem(temporary_store = None, year = None):
     eecind_mensualized = eecind_mensualized.combine_first(eec_3)
 
 
-
+    eecind.reset_index(drop = True)
+    eec_1.reset_index(drop = True)
+    eec_2.reset_index(drop = True)
+    eec_3.reset_index(drop = True)
 
 
 
@@ -203,9 +205,14 @@ def create_indivim_menagem(temporary_store = None, year = None):
     del noappar_i, noappar_m, difference, intersection
     gc.collect()
 
+
+
+
     # fusion enquete emploi et source fiscale
     menagem = erfmen.merge(eecmen)
+
     indivim = eecind_mensualized.merge(erfind, on = ['noindiv', 'ident', 'noi'], how = "inner")
+
 
     # optimisation des types? Controle de l'existence en passant
     # TODO: minimal dtype
@@ -236,9 +243,7 @@ def create_indivim_menagem(temporary_store = None, year = None):
     ##### TODO: CRADE !
 
     for var in var_list:
-         indivim[var] = indivim[var].astype('int8')
-
-
+         indivim[var] = indivim[var].astype('int')
 
     ####
     for var in var_list:
@@ -310,12 +315,10 @@ def create_indivim_menagem(temporary_store = None, year = None):
 
         #assert indivim[actrec].isnull().value_counts() == indivim[sitmoi].isnull().value_counts()
 
+
     for month in range(1,13):
         assert_dtype(indivim[actrec], "int8")
         assert indivim[actrec].isin(range(0, 10)).all(), 'actrec values are outside the interval [1, 9]' #mis 0 pour les NaN # TODO : se débrouiller pour mieux gérer le truc.
-
-
-
 
 
 
@@ -355,12 +358,15 @@ def create_indivim_menagem(temporary_store = None, year = None):
     if year == 2009:
         erfind['tu99'] = None  # TODO: why ?
 
+
     # Locataire
     menagem["locataire"] = menagem.so.isin([3, 4, 5])
     assert_dtype(menagem.locataire, "bool")
 
+
     transfert = indivim.loc[indivim.lpr == 1, ['ident', 'ddipl']].copy()
     menagem = menagem.merge(transfert)
+
 
     # Correction
     def _manually_remove_errors():
