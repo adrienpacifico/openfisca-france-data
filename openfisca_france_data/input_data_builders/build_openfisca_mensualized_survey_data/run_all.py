@@ -30,14 +30,14 @@ import os
 
 from openfisca_france_data import default_config_files_directory as config_files_directory
 from openfisca_france_data.input_data_builders.build_openfisca_mensualized_survey_data import (  # analysis:ignore
-    step_01_pre_processing as pre_processing,
-    step_02_imputation_loyer as imputation_loyer,
-    step_03_fip as fip,
-    step_04_famille as famille,
-    step_05_foyer as foyer,
-    step_06_rebuild as rebuild,
-    step_07_invalides as invalides,
-    step_08_final as final,
+    step_01_monthly_basis_pre_processing as pre_processing,
+    #step_02_monthly_basis_imputation_loyer as imputation_loyer,
+    step_03_monthly_basis_fip as fip,
+    step_04_monthly_basis_famille as famille,
+    step_05_monthly_basis_foyer as foyer,
+    step_06_monthly_basis_rebuild as rebuild,
+    step_07_monthly_basis_invalides as invalides,
+    step_08_monthly_basis_final as final,
     )
 from openfisca_france_data.temporary import get_store
 
@@ -70,11 +70,12 @@ def run_all(year = None, check = False):
 
     temporary_store = get_store(file_name = 'erfs_mensualized')
     data_frame = temporary_store['input_{}'.format(year)]
-    # Saving the data_frame
+    import pdb ; pdb.set_trace()
+    #Saving the data_frame
     openfisca_survey_collection = SurveyCollection(name = "openfisca", config_files_directory = config_files_directory)
     output_data_directory = openfisca_survey_collection.config.get('data', 'output_directory')
     survey_name = "openfisca_data_{}".format(year)
-    table = "input"
+    table = "input_mensualized"
     hdf5_file_path = os.path.join(os.path.dirname(output_data_directory), "{}.h5".format(survey_name))
     survey = Survey(
         name = survey_name,

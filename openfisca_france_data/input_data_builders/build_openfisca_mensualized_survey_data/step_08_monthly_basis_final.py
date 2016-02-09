@@ -50,7 +50,7 @@ from openfisca_france_data.input_data_builders.build_openfisca_mensualized_surve
 log = logging.getLogger(__name__)
 
 
-@temporary_store_decorator(config_files_directory = config_files_directory, file_name = 'erfs_mensualized"')
+@temporary_store_decorator(config_files_directory = config_files_directory, file_name = 'erfs_mensualized')
 def final(temporary_store = None, year = None, check = True):
 
     assert temporary_store is not None
