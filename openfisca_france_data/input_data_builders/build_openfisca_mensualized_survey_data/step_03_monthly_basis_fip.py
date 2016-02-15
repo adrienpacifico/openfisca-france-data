@@ -40,7 +40,7 @@ from openfisca_france_data.input_data_builders.build_openfisca_mensualized_surve
 from openfisca_france_data.temporary import temporary_store_decorator
 from openfisca_survey_manager.survey_collections import SurveyCollection
 
-import pdb
+
 
 
 log = logging.getLogger(__name__)
@@ -57,7 +57,7 @@ def create_fip(temporary_store = None, year = None):
     # but are not present in the erf or eec tables.
     # We add them to ensure consistency between concepts.
 
-    pdb.set_trace()
+
 
     year_specific_by_generic = year_specific_by_generic_data_frame_name(year)
 
@@ -73,7 +73,7 @@ def create_fip(temporary_store = None, year = None):
     foyer = survey.get_values(table = year_specific_by_generic["foyer"], variables = erfFoyVar)
     foyer.replace({'anaisenf': {'NA': np.nan}}, inplace = True)
 
-    ipdb.set_trace()
+
 
     log.info(u"Etape 1 : on récupere les personnes à charge des foyers")
     log.info(u"    1.1 : Création des codes des enfants")
@@ -95,7 +95,8 @@ def create_fip(temporary_store = None, year = None):
             (i, 'naia')
             ]
         multi_index_columns += pac_tuples_list
-
+        assert multi_index_columns !=[]
+    print multi_index_columns
     columns = MultiIndex.from_tuples(
         multi_index_columns,
         names = ['pac_number', 'variable']
@@ -172,6 +173,7 @@ def create_fip(temporary_store = None, year = None):
     tmp_pac2 = pac[['noindiv', 'key2']].copy()
     tmp_indivifip = indivifip[['key', 'type_pac', 'naia']].copy()
 
+# TODO : ça couille là, pourquoi ? Le merge foire car les années de naissance dans tmp_pac1['key1'] sont négatifs
     pac_ind1 = tmp_pac1.merge(tmp_indivifip, left_on='key1', right_on='key', how='inner')
     log.info(u"{} pac dans les 1ères déclarations".format(len(pac_ind1)))
     pac_ind2 = tmp_pac2.merge(tmp_indivifip, left_on='key2', right_on='key', how='inner')
@@ -182,7 +184,6 @@ def create_fip(temporary_store = None, year = None):
 
     del pac_ind1['key1'], pac_ind2['key2']
 
-    ipdb.set_trace()
     if len(pac_ind1.index) == 0:
         if len(pac_ind2.index) == 0:
             log.info(u"Warning : no link between pac and noindiv for both pacInd1&2")
@@ -293,8 +294,11 @@ def create_fip(temporary_store = None, year = None):
 
     log.info("Number of duplicated fip: {}".format(fip.duplicated('noindiv').value_counts()))
     temporary_store['fipDat_{}'.format(year)] = fip
+
+
     del fip, fip1, individec1, indivifip, indivi, pac
     log.info(u"fip sauvegardé")
+
 
 
 if __name__ == '__main__':

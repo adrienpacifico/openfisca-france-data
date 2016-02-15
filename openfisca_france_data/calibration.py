@@ -70,6 +70,23 @@ class Calibration(object):
         Set simulation
         """
         self.survey_scenario = survey_scenario
+        import ipdb; ipdb.set_trace()
+        # TODO deal with reference if reform is present
+        if survey_scenario.simulation is None:
+            survey_scenario.simulation = survey_scenario.new_simulation()
+        self.filter_by = filter_by = survey_scenario.simulation.calculate_add(self.filter_by_name)
+        # TODO: shoud not be france specific
+        self.weight_name = weight_name = self.survey_scenario.weight_column_name_by_entity_key_plural['menages']
+        self.initial_weight_name = weight_name + "_ini"
+        self.initial_weight = initial_weight = survey_scenario.simulation.calculate_add(weight_name)
+        self.initial_total_population = sum(initial_weight * filter_by)
+        self.weight = survey_scenario.simulation.calculate_add(weight_name)
+
+    def _set_monthly_basis_survey_scenario(self, survey_scenario): # TODO : aucune idée d'a quoi sert ceci !
+        """
+        Set simulation
+        """
+        self.survey_scenario = survey_scenario
         # TODO deal with reference if reform is present
         if survey_scenario.simulation is None:
             survey_scenario.simulation = survey_scenario.new_simulation()

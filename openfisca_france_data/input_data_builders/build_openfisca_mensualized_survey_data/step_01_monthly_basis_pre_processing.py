@@ -394,7 +394,6 @@ def create_enfants_a_naitre(temporary_store = None, year = None):
     '''
     assert temporary_store is not None
     assert year is not None
-
     erfs_survey_collection = SurveyCollection.load(
         collection = 'erfs', config_files_directory = config_files_directory)
     survey = erfs_survey_collection.get_survey('erfs_{}'.format(year))
@@ -424,9 +423,9 @@ def create_enfants_a_naitre(temporary_store = None, year = None):
         'titc',
         ]
     year_specific_by_generic = year_specific_by_generic_data_frame_name(year)
-    eeccmp1 = survey.get_values(table = year_specific_by_generic["eec_cmp1"], variables = individual_vars) # TODO : check ça prend les enfants de l'année après pas d'avant...
-    eeccmp2 = survey.get_values(table = year_specific_by_generic["eec_cmp2"], variables = individual_vars)
-    eeccmp3 = survey.get_values(table = year_specific_by_generic["eec_cmp3"], variables = individual_vars)
+    eeccmp1 = survey.get_values(table = year_specific_by_generic["eec_cmp5"], variables = individual_vars) # TODO : check ça prend les enfants de l'année après pas d'avant...
+    eeccmp2 = survey.get_values(table = year_specific_by_generic["eec_cmp6"], variables = individual_vars)
+    eeccmp3 = survey.get_values(table = year_specific_by_generic["eec_cmp7"], variables = individual_vars)
     tmp = eeccmp1.merge(eeccmp2, how = "outer")
     enfants_a_naitre = tmp.merge(eeccmp3, how = "outer")
 

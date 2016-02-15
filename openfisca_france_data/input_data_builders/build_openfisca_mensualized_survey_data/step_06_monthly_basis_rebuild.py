@@ -649,6 +649,25 @@ def create_totals_second_pass(temporary_store = None, year = None):
     del idfoyList
     print_id(indivi)
 
+
+######
+# TODO : Supprimer prochaines lignes, crade juste pour faire un essai de mensualisation
+
+    for month in range(1,13):
+        indivi[]
+
+
+    situation_mois_string_list = []
+    for month in range(1,13):
+    sali_mois_string_list.append("sali_mois{}".format(month))
+
+
+
+#################
+
+
+
+
     # Sélectionne les variables à garder pour les steps suivants
     variables = [
         "actrec",
@@ -677,6 +696,14 @@ def create_totals_second_pass(temporary_store = None, year = None):
         "alr",
         "wprm",
         ]
+
+    # Crée les variables mois à garder
+    situation_mois_string_list = []
+    for month in range(1,13):
+        situation_mois_string_list.append("actrec_mois{}".format(month))
+
+    variables = variables + situation_mois_string_list
+
 
     assert set(variables).issubset(set(indivi.columns)), \
         "Manquent les colonnes suivantes : {}".format(set(variables).difference(set(indivi.columns)))
@@ -845,7 +872,9 @@ def create_totals_second_pass(temporary_store = None, year = None):
     assert lg_dup == 0, "{} pairs of idfoy/quifoy in tot3 are duplicated".format(lg_dup)
 
     temporary_store['tot3_{}'.format(year)] = tot3
-    control(tot3)
+    control(tot3)   #  TODO :  (indivi[month_list]== 1).sum(1).value_counts() donne enfin exactement la moitié du sample !
+
+    import ipdb ; ipdb.set_trace()
 
     del tot2, allvars, tot3, vars2
     gc.collect()
@@ -909,6 +938,9 @@ def create_final(temporary_store = None, year = None):
 
     temporary_store['final_{}'.format(year)] = final
     log.info(u"final sauvegardé")
+
+    import ipdb ; ipdb.set_trace()
+
     del sif, final
 
 if __name__ == '__main__':
