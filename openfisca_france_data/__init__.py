@@ -59,7 +59,7 @@ AGGREGATES_DEFAULT_VARS = [
     'aah',
     'caah',
     'rsa',
-    'rsa_act',
+    'rsa_act', # TODO : add ppa ?
     'aefa',
     'api',
     # 'majo_rsa',
@@ -71,6 +71,7 @@ AGGREGATES_DEFAULT_VARS = [
     ]
 #  ajouter csgd pour le calcul des agrégats erfs
 #  ajouter rmi pour le calcul des agrégats erfs
+# TODO : ajouter la prime d'activite
 
 
 default_config_files_directory = pkg_resources.get_distribution('openfisca-survey-manager').location
