@@ -47,7 +47,6 @@ log = logging.getLogger(__name__)
 def create_totals_first_pass(temporary_store = None, year = None):
     assert temporary_store is not None
     assert year is not None
-
     # On part de la table individu de l'ERFS
     # on renomme les variables
     log.info(u"Creating Totals")
@@ -83,7 +82,7 @@ def create_totals_first_pass(temporary_store = None, year = None):
     assert indivi_i.quifoy.notnull().all()
     indivi_i.loc[indivi_i.quifoy == "", "quifoy"] = "vous"
     indivi_i.quelfic = "FIP_IMP"
-
+    import ipdb;ipdb.set_trace()
    # We merge them with the other individuals
     indivim.rename(
         columns = dict(
@@ -650,20 +649,20 @@ def create_totals_second_pass(temporary_store = None, year = None):
     print_id(indivi)
 
 
-######
-# TODO : Supprimer prochaines lignes, crade juste pour faire un essai de mensualisation
-
-    for month in range(1,13):
-        indivi[]
-
-
-    situation_mois_string_list = []
-    for month in range(1,13):
-    sali_mois_string_list.append("sali_mois{}".format(month))
-
-
-
-#################
+# ######
+# # TODO : Supprimer prochaines lignes, crade juste pour faire un essai de mensualisation
+#
+#     for month in range(1,13):
+#         pass
+#
+#
+#     situation_mois_string_list = []
+#     for month in range(1,13):
+#         sali_mois_string_list.append("sali_mois{}".format(month))
+#
+#
+#
+# #################
 
 
 
@@ -698,11 +697,155 @@ def create_totals_second_pass(temporary_store = None, year = None):
         ]
 
     # Crée les variables mois à garder
-    situation_mois_string_list = []
+    actrec_mois_string_list = []
     for month in range(1,13):
-        situation_mois_string_list.append("actrec_mois{}".format(month))
+        actrec_mois_string_list.append("actrec_mois{}".format(month))
+    sit_mois_list = ["situation_mois{}".format(month) for month in range(1,13)]
+    salaire_mois_list = ["sali_mois{}".format(month) for month in range(1,13)]
+    chomage_mois_list = ["choi_mois{}".format(month) for month in range(1,13)]
+    retraite_mois_list = ["rsti_mois{}".format(month) for month in range(1,13)]
 
-    variables = variables + situation_mois_string_list
+    variables_revenu_mensuel = salaire_mois_list + chomage_mois_list + retraite_mois_list
+
+    variables = variables + actrec_mois_string_list
+
+
+
+
+
+
+######## Perte d'emploi #########  #Contient les passage à la retraite, en inactivité, etc
+    for month in range(2,13):
+        changement_situation_mois = "perte_emploi_mois{}".format(month)
+        sitmois_minus_one = "situation_mois{}".format(month-1)
+        sitmois = "situation_mois{}".format(month)
+
+        indivi[changement_situation_mois] = ((indivi[sitmois]!=1) & (indivi[sitmois_minus_one]==1))
+
+
+###### Fin Perte d'emploi#####
+
+
+
+######## Gagne d'emploi #########
+    for month in range(2,13):
+        changement_situation_mois = "gain_emploi_mois{}".format(month)
+        sitmois_minus_one = "situation_mois{}".format(month-1)
+        sitmois = "situation_mois{}".format(month)
+
+        indivi[changement_situation_mois] = ((indivi[sitmois]==1) & (indivi[sitmois_minus_one]!=1))
+
+
+###### Fin Gagne emploi#####
+
+
+
+##### Passage à la retraite ####
+    for month in range(2,13):
+        changement_situation_mois = "passage_retraite_mois{}".format(month)
+        sitmois_minus_one = "situation_mois{}".format(month-1)
+        sitmois = "situation_mois{}".format(month)
+
+        indivi[changement_situation_mois] = ((indivi[sitmois]==4) & (indivi[sitmois_minus_one]==1)) # TODO: voir si on loupe pas d'autre retaité (voir actrec et rsti ?)
+
+
+##### Fin Passage à la retraite ####
+
+
+##### Passage au chomage ####
+    for month in range(2,13):
+        changement_situation_mois = "passage_chomage_mois{}".format(month)
+        sitmois_minus_one = "situation_mois{}".format(month-1)
+        sitmois = "situation_mois{}".format(month)
+
+        indivi[changement_situation_mois] = ((indivi[sitmois]==3) & (indivi[sitmois_minus_one]==1)) # TODO: voir si on loupe pas d'autre retaité (voir actrec et rsti ?)
+
+
+##### Fin Passage au chomage####
+
+
+
+
+##### Sortie du chomage vers l'emploi####
+    for month in range(2,13):
+        changement_situation_mois = "sortie_chomage_to_emploi_mois{}".format(month)
+        sitmois_minus_one = "situation_mois{}".format(month-1)
+        sitmois = "situation_mois{}".format(month)
+
+        indivi[changement_situation_mois] = ((indivi[sitmois]==1) & (indivi[sitmois_minus_one]==3)) # TODO: voir si on loupe pas d'autre retaité (voir actrec et rsti ?)
+
+
+##### Fin Sortie du chomage vers l'emploi####
+
+
+
+
+    sit_mois_list = ["situation_mois{}".format(month) for month in range(1,13)]
+##### Assigniation des sali choi et rsti mensuel####
+
+    nb_mois_actif = (indivi[sit_mois_list]==1).sum(1)
+    nb_mois_chomeur = (indivi[sit_mois_list]==3).sum(1)
+    nb_mois_ss_rev_act = ((indivi[sit_mois_list]== 2) | (indivi[sit_mois_list]== 4)| (indivi[sit_mois_list]== 5) |  (indivi[sit_mois_list]== 6)).sum(1)
+
+
+    nb_mois_retraite = (indivi[sit_mois_list]==4).sum(1)  #les séquences des retraités sont bisare, parfois renségnées parfois non
+
+
+    # Nb de mois de retraite : si retraité == 4 sur un mois et jamais égal à 1,3,5,6 alors nb_mois = 12
+
+    est_retraite_during_year = ((indivi[sit_mois_list]==4).sum(1) <12) & ((indivi[sit_mois_list]==4).sum(1) >0)
+
+
+
+    is_in_target_sample = (indivi.rga == 6) | (indivi.rga == 5) | (indivi.rga == 4)
+
+
+
+    nest_pas_retraite_during_year = (((indivi[sit_mois_list]==4).sum(1) >1)                 #TODO : regarder la différence entre NaN et 0 dans situation_mois
+                                        | ((indivi[sit_mois_list]==3).sum(1) >1)
+                                        | ((indivi[sit_mois_list]==5).sum(1) >1)
+                                        | ((indivi[sit_mois_list]==6).sum(1) >1))
+
+    indivi[est_retraite_during_year & nest_pas_retraite_during_year & is_in_target_sample]==0 #TODO : le matin, mettre les is_in_target_sample dans le step one !
+
+    for month in range(1,13):
+        sitmois = "situation_mois{}".format(month)
+        salaire_mois = "sali_mois{}".format(month)
+        chomage_mois = "choi_mois{}".format(month)
+        retraite_mois = "rsti_mois{}".format(month)
+
+
+        indivi[salaire_mois] = indivi[(indivi[sitmois] == 1)]['sali']/nb_mois_actif
+        #indivi[salaire_mois] = indivi[(indivi[sitmois] == 1) & (indivi[nb_mois_actif>0 ])]['sali']/nb_mois_actif
+        indivi[chomage_mois] = indivi[indivi[sitmois] == 3]['choi']/nb_mois_chomeur
+        indivi[retraite_mois] = indivi[indivi[sitmois] == 2]['rsti']/nb_mois_retraite
+
+
+#        indivi[(nb_mois_actif == 0)&(indivi.sali>0)& is_in_target_sample] =
+
+
+        ###indivi[(nb_mois_actif == 0)&(indivi.sali>0)& is_in_target_sample].sort('sali', ascending = False).sali
+        ### Il y a 1681  personnes dont le salaire déclaré est positif
+
+        ### indivi[(nb_mois_actif == 0)&(indivi.sali>0)& is_in_target_sample].sort('sali', ascending = False).sali.hist()
+        ### indivi[(nb_mois_actif == 0)&(indivi.sali>0)& is_in_target_sample & (indivi.sali<25000)].sort('sali', ascending = False).sali.hist()
+        #### la majorité sont sur des salaires faibles
+
+
+    import ipdb;ipdb.set_trace()
+
+
+##### Fin Assigniation des sali mensuel####
+
+### Controle que l'on a pas perdu de revenu ####
+
+    #assert indivi[salaire_mois_list].sum(1) == indivi.sali #TODO : avoir ça en place !
+    #assert indivi[chomage_mois_list].sum(1) == indivi.sali
+    #assert indivi[chomage_mois_list].sum(1) == indivi.sali
+
+
+
+
 
 
     assert set(variables).issubset(set(indivi.columns)), \
@@ -836,6 +979,12 @@ def create_totals_second_pass(temporary_store = None, year = None):
     assert tot2.quifam.notnull().all()
 
     temporary_store['tot2_{}'.format(year)] = tot2
+
+
+    #import ipdb ; ipdb.set_trace()
+    #(indivi[month_list]== 1).sum(1).value_counts() #TODO : faire le comptage ici !
+
+
     del indivi
     log.info(u"    tot2 saved")
     tot2 = tot2[tot2.idmen.notnull()].copy()
@@ -873,13 +1022,36 @@ def create_totals_second_pass(temporary_store = None, year = None):
 
     temporary_store['tot3_{}'.format(year)] = tot3
     control(tot3)   #  TODO :  (indivi[month_list]== 1).sum(1).value_counts() donne enfin exactement la moitié du sample !
-
+    print "50% du sample !"
     import ipdb ; ipdb.set_trace()
+
+
+
+
+
+
+
+
+
+
+
+
+
+###### Passage à la retraite#####
+
+    #Passe à la retraite si :
+        ###Situation-mois ==1 puis 4
+        ###Situatiomois == 1 puis actrec =7
+
+
+
+###### Fin passage à la retraite
 
     del tot2, allvars, tot3, vars2
     gc.collect()
     log.info(u"tot3 sauvegardé")
 
+    month_list = ["situation_mois{}".format(month) for month in range(1,13)]
 
 @temporary_store_decorator(config_files_directory = config_files_directory, file_name = "erfs_mensualized")
 def create_final(temporary_store = None, year = None):
@@ -901,7 +1073,7 @@ def create_final(temporary_store = None, year = None):
     # tot3 = concat([tot3, foy_ind], join_axes=[tot3.index], axis=1, verify_integrity = True)
 
     # TODO improve this
-    foy_ind.drop([u'alr', u'rsti', u'sali', u'choi'], axis = 1, inplace = True)
+    foy_ind.drop([u'alr', u'rsti', u'sali', u'choi'], axis = 1, inplace = True)  # TODO : est remplacé plus loins par zsali zchoi etc qui contiennent des trucs en plus (pensions alimentaires par ex)c
     tot3 = tot3.join(foy_ind)
     tot3.reset_index(inplace = True)
     foy_ind.reset_index(inplace = True)

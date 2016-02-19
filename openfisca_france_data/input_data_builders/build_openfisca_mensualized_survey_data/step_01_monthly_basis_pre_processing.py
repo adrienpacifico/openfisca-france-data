@@ -157,6 +157,7 @@ def create_indivim_menagem(temporary_store = None, year = None):
 
 
 
+
     #pour comprendre
         # for trim in range(1,5):
         #     for sp in range(0,3):
@@ -181,6 +182,9 @@ def create_indivim_menagem(temporary_store = None, year = None):
     eecind_mensualized = eecind.combine_first(eec_1)
     eecind_mensualized = eecind_mensualized.combine_first(eec_2)
     eecind_mensualized = eecind_mensualized.combine_first(eec_3)
+
+
+
 
 
     eecind.reset_index(drop = True)
@@ -281,6 +285,7 @@ def create_indivim_menagem(temporary_store = None, year = None):
         sitmoi = "situation_mois{}".format(month)
         actrec = "actrec_mois{}".format(month)
 
+
     #   actrec : activité recodée comme preconisé par l'INSEE p84 du guide utilisateur
         indivim["actrec_mois{}".format(month)] = numpy.nan
         # 3: contrat a durée déterminée
@@ -303,10 +308,8 @@ def create_indivim_menagem(temporary_store = None, year = None):
         filter7 = (indivim.acteu == 3) & ((indivim.retrai == 1) | (indivim.retrai == 2))
         indivim[actrec].loc[indivim[sitmoi] == 4] = 7
         # 9 : probablement enfants de - de 16 ans
-        indivim[actrec].loc[indivim[actrec] == 0] = 9  #TODO: distinguer les retraités des enfants de moins de 16 ans
-        indivim[actrec].loc[indivim[actrec].isnull()] = 9 # Attention très crade, transforme les séquences des retraités et des mineurs NAN en mineurs... #TODO : corriger
-
-        #ipdb.set_trace()
+        indivim[actrec].loc[indivim[sitmoi] == 0] = 9  #TODO: distinguer les retraités des enfants de moins de 16 ans
+        indivim[actrec].loc[indivim[actrec].isnull()] = 99 # TODO : corriger
 
         #assert indivim[actrec].isnull().value_counts() == indivim[sitmoi].isnull().value_counts() # TODO : plus de sitmois null que d'actrec, pourquoi, pas normal ?!
 
@@ -314,11 +317,11 @@ def create_indivim_menagem(temporary_store = None, year = None):
         indivim[actrec] = indivim[actrec].astype("int8")
 
         #assert indivim[actrec].isnull().value_counts() == indivim[sitmoi].isnull().value_counts()
-
+        # TODO : mensualiser NBTEMP pour prendre en compte ceux qui ont plusieurs emplois, HHX le nombre d'heure moyenne par semaine (faire la variation)
 
     for month in range(1,13):
         assert_dtype(indivim[actrec], "int8")
-        assert indivim[actrec].isin(range(0, 10)).all(), 'actrec values are outside the interval [1, 9]' #mis 0 pour les NaN # TODO : se débrouiller pour mieux gérer le truc.
+        #assert indivim[actrec].isin(range(0, 10)).all(), 'actrec values are outside the interval [1, 9]' #mis 0 pour les NaN # TODO : se débrouiller pour mieux gérer le truc avec la valeur 99
 
 
 
