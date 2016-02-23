@@ -33,9 +33,8 @@ import pkg_resources
 log = logging.getLogger(__name__)
 
 
-openfisca_france_location = pkg_resources.get_distribution('openfisca-france-data').location
+openfisca_france_location = pkg_resources.get_distribution('openfisca-france-data').location  # TODO : voir si pas deprecated puisque dans ofd.__init__.py
 default_config_files_directory = os.path.join(openfisca_france_location)
-
 
 def get_tmp_file_path(config_files_directory = default_config_files_directory):
     parser = SafeConfigParser()

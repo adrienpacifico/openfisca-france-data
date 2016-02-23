@@ -23,7 +23,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
+from __future__ import division
 import gc
 import logging
 
@@ -704,14 +704,15 @@ def create_totals_second_pass(temporary_store = None, year = None):
     salaire_mois_list = ["sali_mois{}".format(month) for month in range(1,13)]
     chomage_mois_list = ["choi_mois{}".format(month) for month in range(1,13)]
     retraite_mois_list = ["rsti_mois{}".format(month) for month in range(1,13)]
+    revenu_mois_list = ["revi_mois{}".format(month) for month in range(1,13)]
 
     variables_revenu_mensuel = salaire_mois_list + chomage_mois_list + retraite_mois_list
 
-    variables = variables + actrec_mois_string_list
+    variables = variables + actrec_mois_string_list + revenu_mois_list + ["is_in_target_sample"]
 
 
 
-
+    import ipdb ; ipdb.set_trace()
 
 
 ######## Perte d'emploi #########  #Contient les passage à la retraite, en inactivité, etc
@@ -798,7 +799,7 @@ def create_totals_second_pass(temporary_store = None, year = None):
 
 
     is_in_target_sample = (indivi.rga == 6) | (indivi.rga == 5) | (indivi.rga == 4)
-
+    indivi["is_in_target_sample"] = is_in_target_sample
 
 
     nest_pas_retraite_during_year = (((indivi[sit_mois_list]==4).sum(1) >1)                 #TODO : regarder la différence entre NaN et 0 dans situation_mois
@@ -813,13 +814,16 @@ def create_totals_second_pass(temporary_store = None, year = None):
         salaire_mois = "sali_mois{}".format(month)
         chomage_mois = "choi_mois{}".format(month)
         retraite_mois = "rsti_mois{}".format(month)
+        revenu_mois = "revi_mois{}".format(month)
 
 
         indivi[salaire_mois] = indivi[(indivi[sitmois] == 1)]['sali']/nb_mois_actif
         #indivi[salaire_mois] = indivi[(indivi[sitmois] == 1) & (indivi[nb_mois_actif>0 ])]['sali']/nb_mois_actif
         indivi[chomage_mois] = indivi[indivi[sitmois] == 3]['choi']/nb_mois_chomeur
         indivi[retraite_mois] = indivi[indivi[sitmois] == 2]['rsti']/nb_mois_retraite
+        indivi[retraite_mois] = indivi[indivi[sitmois] == 2]['rsti']/nb_mois_retraite
 
+        indivi[revenu_mois] = indivi[salaire_mois].fillna(0) + indivi[chomage_mois].fillna(0) + indivi[retraite_mois].fillna(0)
 
 #        indivi[(nb_mois_actif == 0)&(indivi.sali>0)& is_in_target_sample] =
 
@@ -832,7 +836,7 @@ def create_totals_second_pass(temporary_store = None, year = None):
         #### la majorité sont sur des salaires faibles
 
 
-    import ipdb;ipdb.set_trace()
+
 
 
 ##### Fin Assigniation des sali mensuel####
@@ -840,9 +844,12 @@ def create_totals_second_pass(temporary_store = None, year = None):
 ### Controle que l'on a pas perdu de revenu ####
 
     #assert indivi[salaire_mois_list].sum(1) == indivi.sali #TODO : avoir ça en place !
-    #assert indivi[chomage_mois_list].sum(1) == indivi.sali
-    #assert indivi[chomage_mois_list].sum(1) == indivi.sali
+    #assert indivi[chomage_mois_list].sum(1) == indivi.choi
+    #assert indivi[retraite_mois_list].sum(1) == indivi.rsti
 
+    indivi["difference_sum_sali"] = indivi[salaire_mois_list].sum(1) - indivi.sali
+    indivi["difference_sum_choi"] = indivi[chomage_mois_list].sum(1) - indivi.choi
+    indivi["difference_sum_rsti"] = indivi[retraite_mois_list].sum(1) - indivi.rsti
 
 
 
@@ -1023,29 +1030,8 @@ def create_totals_second_pass(temporary_store = None, year = None):
     temporary_store['tot3_{}'.format(year)] = tot3
     control(tot3)   #  TODO :  (indivi[month_list]== 1).sum(1).value_counts() donne enfin exactement la moitié du sample !
     print "50% du sample !"
-    import ipdb ; ipdb.set_trace()
+    #import ipdb ; ipdb.set_trace()
 
-
-
-
-
-
-
-
-
-
-
-
-
-###### Passage à la retraite#####
-
-    #Passe à la retraite si :
-        ###Situation-mois ==1 puis 4
-        ###Situatiomois == 1 puis actrec =7
-
-
-
-###### Fin passage à la retraite
 
     del tot2, allvars, tot3, vars2
     gc.collect()
