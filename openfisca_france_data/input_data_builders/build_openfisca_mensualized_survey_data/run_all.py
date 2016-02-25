@@ -26,6 +26,8 @@
 
 import logging
 import os
+import pandas as pd
+
 
 
 from openfisca_france_data import default_config_files_directory as config_files_directory
@@ -38,6 +40,7 @@ from openfisca_france_data.input_data_builders.build_openfisca_mensualized_surve
     step_06_monthly_basis_rebuild as rebuild,
     step_07_monthly_basis_invalides as invalides,
     step_08_monthly_basis_final as final,
+    step_11_mensualize as mensualize,
     )
 from openfisca_france_data.temporary import get_store
 
@@ -51,27 +54,30 @@ log = logging.getLogger(__name__)
 def run_all(year = None, check = False):
 
     assert year is not None
-    pre_processing.create_indivim_menagem(year = year)
-    pre_processing.create_enfants_a_naitre(year = year)
+    #pre_processing.create_indivim_menagem(year = year)
+    #pre_processing.create_enfants_a_naitre(year = year)
     #    try:
     #        imputation_loyer.imputation_loyer(year = year)
     #    except Exception, e:
     #        log.info('Do not impute loyer because of the following error: \n {}'.format(e))
     #        pass
-    fip.create_fip(year = year)
-    famille.famille(year = year)
-    foyer.sif(year = year)
-    foyer.foyer_all(year = year)
-    rebuild.create_totals_first_pass(year = year)
-    rebuild.create_totals_second_pass(year = year)
-    rebuild.create_final(year = year)
-    invalides.invalide(year = year)
-    final.final(year = year, check = check)
+    #fip.create_fip(year = year)
+    #famille.famille(year = year)
+    #foyer.sif(year = year)
+    #foyer.foyer_all(year = year)
+    #rebuild.create_totals_first_pass(year = year)
+    #rebuild.create_totals_second_pass(year = year)
+    #rebuild.create_final(year = year)
+    #invalides.invalide(year = year)
+    #final.final(year = year, check = check)
+
+
+    mensualize.put_on_monthly_basis(year = year)
 
     temporary_store = get_store(file_name = 'erfs_mensualized')
     data_frame = temporary_store['input_{}'.format(year)]
-    import pdb ; pdb.set_trace()
-    #Saving the data_frame
+
+    # Saving the data_frame
     openfisca_survey_collection = SurveyCollection(name = "openfisca", config_files_directory = config_files_directory)
     output_data_directory = openfisca_survey_collection.config.get('data', 'output_directory')
     survey_name = "openfisca_data_{}".format(year)
@@ -81,7 +87,14 @@ def run_all(year = None, check = False):
         name = survey_name,
         hdf5_file_path = hdf5_file_path,
         )
-    survey.insert_table(name = table, data_frame = data_frame)
+
+   # survey.insert_table(name = data_frame, data_frame = data_frame)
+
+    monthly_variable_periods = temporary_store.get_node('input_mensualized')._v_children.keys()
+    for monthly_variable_period in monthly_variable_periods:
+        data_frame = temporary_store['/input_mensualized/{}'.format(monthly_variable_period)]
+        survey.insert_table(name = monthly_variable_period, data_frame = data_frame)
+
     openfisca_survey_collection.surveys.append(survey)
     collections_directory = openfisca_survey_collection.config.get('collections', 'collections_directory')
     json_file_path = os.path.join(collections_directory, 'openfisca.json')
@@ -91,7 +104,9 @@ def run_all(year = None, check = False):
 if __name__ == '__main__':
     import time
     start = time.time()
-    logging.basicConfig(level = logging.INFO, filename = 'run_all.log', filemode = 'w')
+    logging.basicConfig(level = logging.INFO,
+                        format="%(levelname) -10s %(asctime)s %(module)s:%(lineno)s %(funcName)s %(message)s",
+                        filename = 'run_all.log', filemode = 'w')
     run_all(year = 2009, check = False)
     log.info("Script finished after {}".format(time.time() - start))
     print time.time() - start

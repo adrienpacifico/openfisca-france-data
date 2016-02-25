@@ -82,7 +82,7 @@ def create_totals_first_pass(temporary_store = None, year = None):
     assert indivi_i.quifoy.notnull().all()
     indivi_i.loc[indivi_i.quifoy == "", "quifoy"] = "vous"
     indivi_i.quelfic = "FIP_IMP"
-    import ipdb;ipdb.set_trace()
+ #   import ipdb;ipdb.set_trace()
    # We merge them with the other individuals
     indivim.rename(
         columns = dict(
@@ -708,7 +708,7 @@ def create_totals_second_pass(temporary_store = None, year = None):
 
     variables_revenu_mensuel = salaire_mois_list + chomage_mois_list + retraite_mois_list
 
-    variables = variables + actrec_mois_string_list + revenu_mois_list + ["is_in_target_sample"]
+    variables = variables + actrec_mois_string_list + revenu_mois_list + variables_revenu_mensuel + ["is_in_target_sample"]
 
 
 
