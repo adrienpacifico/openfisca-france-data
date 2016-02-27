@@ -103,6 +103,30 @@ class SurveyScenario(AbstractSurveyScenario):
             year = year
             )
 
+    def init_from_data_frames_by_period(self, input_data_frames_by_periods = None, input_data_frames_by_entity_key_plural = None,
+            reference_tax_benefit_system = None, tax_benefit_system = None, used_as_input_variables = None,
+            year = None):
+
+        if used_as_input_variables is None:
+            used_as_input_variables = self.default_used_as_input_variables
+
+        FranceDataTaxBenefitSystem = init_country()
+        france_data_tax_benefit_system = FranceDataTaxBenefitSystem()
+        if tax_benefit_system is None:
+            tax_benefit_system = france_data_tax_benefit_system
+            reference_tax_benefit_system = None
+
+        return super(SurveyScenario, self).init_from_data_frames_by_period(
+            input_data_frames_by_periods = input_data_frames_by_periods,
+            input_data_frames_by_entity_key_plural = input_data_frames_by_entity_key_plural,
+            reference_tax_benefit_system = reference_tax_benefit_system,
+            tax_benefit_system = tax_benefit_system,
+            used_as_input_variables = used_as_input_variables,
+            year = year
+            )
+
+
+
     def cleanup_input_data_frame(data_frame, filter_entity = None, filter_index = None, simulation = None):
         person_index = dict()
         id_variables = [
@@ -186,6 +210,7 @@ class SurveyScenario(AbstractSurveyScenario):
 
 def new_simulation_from_array_dict(array_dict = None, debug = False, debug_all = False, legislation_json = None,
         tax_benefit_system = None, trace = False, year = None):
+    boum
     simulation = simulations.Simulation(
         debug = debug,
         debug_all = debug_all,

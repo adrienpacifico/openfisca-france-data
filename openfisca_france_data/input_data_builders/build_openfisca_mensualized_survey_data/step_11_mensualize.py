@@ -53,8 +53,16 @@ def store_variables_by_periods(year = None, input_df = None,
             period = periods.period("{}-{}".format(year, month))
             variable = var + "_mois{}".format(month)
             dataframe[var] = input_df[variable].copy()
+            input_df.drop(variable,1) #drop sali_mois1 etc
 
+        input_df.drop(variable,1) #drop sali etc
         dataframe_by_period[period] = dataframe.copy()
+
+
+    period = periods.period("{}".format(year))
+    dataframe_by_period[period] = input_df.copy() #copy the rest of the non monthly inputed variables
+
+
 
     for period, dataframe in dataframe_by_period.iteritems():
         period_str = unicode(period)
@@ -76,7 +84,7 @@ def put_on_monthly_basis(temporary_store = None, year = None, check = True):
     final = temporary_store['input_{}'.format(year)]
     mensualized_variables = ['sali','rsti','choi']
     store_variables_by_periods(input_df= final,
-                               monthly_variable_list = ["sali"], year = year)
+                               monthly_variable_list = mensualized_variables, year = year)
 
 
 
