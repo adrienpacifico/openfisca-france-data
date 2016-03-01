@@ -44,18 +44,21 @@ revi_month_list = ["revi_mois{}".format(month) for month in range(1,13)]
 
 
 @temporary_store_decorator(config_files_directory = config_files_directory, file_name = 'erfs_mensualized')
-def store_variables_by_periods(year = None, input_df = None,
+def store_variables_by_periods(year = None, input_df = None, id_variable_list = ["noindiv", "idfoy", "quifoy", "idmen",'quimen',"idfam","quifam"],
                                monthly_variable_list = ["sali", 'rsti', 'choi'], temporary_store = None):
     dataframe_by_period = dict()
     for month in range(1, 13):
         dataframe = pd.DataFrame()
-        for var in monthly_variable_list:
+        for var in monthly_variable_list + id_variable_list:
             period = periods.period("{}-{}".format(year, month))
-            variable = var + "_mois{}".format(month)
-            dataframe[var] = input_df[variable].copy()
-            input_df.drop(variable,1) #drop sali_mois1 etc
+            if var in monthly_variable_list:
+                variable = var + "_mois{}".format(month)
+                dataframe[var] = input_df[variable].copy()
+                input_df.drop(variable,1) #drop sali_mois1 etc
+            if var in id_variable_list:
+                dataframe[var] = input_df[var].copy()
 
-        input_df.drop(variable,1) #drop sali etc
+        input_df.drop(variable,1) #drop sali etc  # TODO : les drops semblent ne pas fonctionner inplace ? + pas forcément bien fait
         dataframe_by_period[period] = dataframe.copy()
 
 

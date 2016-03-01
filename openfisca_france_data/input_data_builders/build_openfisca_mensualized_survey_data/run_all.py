@@ -88,7 +88,7 @@ def run_all(year = None, check = False):
         hdf5_file_path = hdf5_file_path,
         )
 
-   # survey.insert_table(name = data_frame, data_frame = data_frame)
+    #survey.insert_table(name = data_frame, data_frame = data_frame)
 
     monthly_variable_periods = temporary_store.get_node('input_mensualized')._v_children.keys()
     for monthly_variable_period in monthly_variable_periods:
