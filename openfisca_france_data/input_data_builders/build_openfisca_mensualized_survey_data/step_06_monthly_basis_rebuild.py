@@ -82,7 +82,6 @@ def create_totals_first_pass(temporary_store = None, year = None):
     assert indivi_i.quifoy.notnull().all()
     indivi_i.loc[indivi_i.quifoy == "", "quifoy"] = "vous"
     indivi_i.quelfic = "FIP_IMP"
- #   import ipdb;ipdb.set_trace()
    # We merge them with the other individuals
     indivim.rename(
         columns = dict(
@@ -625,6 +624,11 @@ vivant avec leurs parents qui ne sont pas traités""".format(
     return
 
 
+
+
+
+
+
 @temporary_store_decorator(config_files_directory = config_files_directory, file_name = "erfs_mensualized")
 def create_totals_second_pass(temporary_store = None, year = None):
     assert temporary_store is not None
@@ -667,34 +671,6 @@ def create_totals_second_pass(temporary_store = None, year = None):
 
 
 
-    # Sélectionne les variables à garder pour les steps suivants
-    variables = [
-        "actrec",
-        "age",
-        "age_en_mois",
-        "chpub",
-        "encadr",
-        "idfoy",
-        "idmen",
-        "nbsala",
-        "noi",
-        "noindiv",
-        "prosa",
-        "quelfic",
-        "quifoy",
-        "quimen",
-        "statut",
-        "titc",
-        "txtppb",
-        "wprm",
-        "rc1rev",
-        "maahe",
-        "sali",
-        "rsti",
-        "choi",
-        "alr",
-        "wprm",
-        ]
 
     # Crée les variables mois à garder
     actrec_mois_string_list = []
@@ -705,14 +681,6 @@ def create_totals_second_pass(temporary_store = None, year = None):
     chomage_mois_list = ["choi_mois{}".format(month) for month in range(1,13)]
     retraite_mois_list = ["rsti_mois{}".format(month) for month in range(1,13)]
     revenu_mois_list = ["revi_mois{}".format(month) for month in range(1,13)]
-
-    variables_revenu_mensuel = salaire_mois_list + chomage_mois_list + retraite_mois_list
-
-    variables = variables + actrec_mois_string_list + revenu_mois_list + variables_revenu_mensuel + ["is_in_target_sample"]
-
-
-
-    import ipdb ; ipdb.set_trace()
 
 
 ######## Perte d'emploi #########  #Contient les passage à la retraite, en inactivité, etc
@@ -820,7 +788,7 @@ def create_totals_second_pass(temporary_store = None, year = None):
         indivi[salaire_mois] = indivi[(indivi[sitmois] == 1)]['sali']/nb_mois_actif
         #indivi[salaire_mois] = indivi[(indivi[sitmois] == 1) & (indivi[nb_mois_actif>0 ])]['sali']/nb_mois_actif
         indivi[chomage_mois] = indivi[indivi[sitmois] == 3]['choi']/nb_mois_chomeur
-        indivi[retraite_mois] = indivi[indivi[sitmois] == 2]['rsti']/nb_mois_retraite
+        indivi[retraite_mois] = indivi[indivi[sitmois] == 4]['rsti']/nb_mois_retraite
         indivi[retraite_mois] = indivi[indivi[sitmois] == 2]['rsti']/nb_mois_retraite
 
         indivi[revenu_mois] = indivi[salaire_mois].fillna(0) + indivi[chomage_mois].fillna(0) + indivi[retraite_mois].fillna(0)
@@ -835,7 +803,7 @@ def create_totals_second_pass(temporary_store = None, year = None):
         ### indivi[(nb_mois_actif == 0)&(indivi.sali>0)& is_in_target_sample & (indivi.sali<25000)].sort('sali', ascending = False).sali.hist()
         #### la majorité sont sur des salaires faibles
 
-
+    #import ipdb; ipdb.set_trace()
 
 
 
@@ -852,18 +820,77 @@ def create_totals_second_pass(temporary_store = None, year = None):
     indivi["difference_sum_rsti"] = indivi[retraite_mois_list].sum(1) - indivi.rsti
 
 
+    temporary_store['stat_des_adrien_{}'.format(year)] = indivi
 
 
+
+
+
+
+
+
+
+
+#  #TODO: Mensualized , on ne droppe pas les variables avant le dernier step pour l'instant.
+#
+##### Drop variables that are not used.
+######
+    # Sélectionne les variables à garder pour les steps suivants
+    variables = [
+        "actrec",
+        "age",
+        "age_en_mois",
+        "chpub",
+        "encadr",
+        "idfoy",
+        "idmen",
+        "nbsala",
+        "noi",
+        "noindiv",
+        "prosa",
+        "quelfic",
+        "quifoy",
+        "quimen",
+        "statut",
+        "titc",
+        "txtppb",
+        "wprm",
+        "rc1rev",
+        "maahe",
+        "sali",
+        "rsti",
+        "choi",
+        "alr",
+        "wprm",
+        ]
+
+    # Crée les variables mois à garder
+    actrec_mois_string_list = []
+    for month in range(1,13):
+        actrec_mois_string_list.append("actrec_mois{}".format(month))
+    sit_mois_list = ["situation_mois{}".format(month) for month in range(1,13)]
+    salaire_mois_list = ["sali_mois{}".format(month) for month in range(1,13)]
+    chomage_mois_list = ["choi_mois{}".format(month) for month in range(1,13)]
+    retraite_mois_list = ["rsti_mois{}".format(month) for month in range(1,13)]
+    revenu_mois_list = ["revi_mois{}".format(month) for month in range(1,13)]
+
+    variables_revenu_mensuel = salaire_mois_list + chomage_mois_list + retraite_mois_list
+
+    variables = variables + actrec_mois_string_list + revenu_mois_list + variables_revenu_mensuel + ["is_in_target_sample"]
 
     assert set(variables).issubset(set(indivi.columns)), \
-        "Manquent les colonnes suivantes : {}".format(set(variables).difference(set(indivi.columns)))
-
-    dropped_columns = [variable for variable in indivi.columns if variable not in variables]
+    "Manquent les colonnes suivantes : {}".format(set(variables).difference(set(indivi.columns)))
+    dropped_columns = [variable for variable in indivi.columns if variable not in variables] #TODO: Mensualized , on ne droppe pas les variables avant le dernier step pour l'instant.
     indivi.drop(dropped_columns, axis = 1, inplace = True)
 
     #  see http://stackoverflow.com/questions/11285613/selecting-columns
     indivi.reset_index(inplace = True)
     gc.collect()
+
+
+# #### End drop un-used variables
+# ####
+
 
     # TODO les actrec des fip ne sont pas codées (on le fera à la fin quand on aura rassemblé
     # les infos provenant des déclarations)
@@ -1097,7 +1124,7 @@ def create_final(temporary_store = None, year = None):
     temporary_store['final_{}'.format(year)] = final
     log.info(u"final sauvegardé")
 
-    import ipdb ; ipdb.set_trace()
+    #import ipdb ; ipdb.set_trace()
 
     del sif, final
 

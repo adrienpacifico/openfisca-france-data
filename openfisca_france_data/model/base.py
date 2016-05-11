@@ -57,10 +57,13 @@ __all__ = [
 OpenFiscaFranceTaxBenefitSystem = openfisca_france.init_country()
 openfisca_france_tax_benefit_system = OpenFiscaFranceTaxBenefitSystem()
 
+from openfisca_france.reforms.mensualisation import mensualisation_ir_7 as mensualisation_ir
+
 TaxBenefitSystem = reforms.make_reform(
     key = 'openfisca_france_data',
     name = u"OpenFisca for survey data",
-    reference = openfisca_france_tax_benefit_system,
+    #reference = openfisca_france_tax_benefit_system,
+    reference=mensualisation_ir.build_reform(openfisca_france_tax_benefit_system)
     )
 
 # Export reform classes to register variables in reform column_by_name dict.

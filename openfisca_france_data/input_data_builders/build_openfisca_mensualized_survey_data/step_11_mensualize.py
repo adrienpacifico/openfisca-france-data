@@ -54,18 +54,16 @@ def store_variables_by_periods(year = None, input_df = None, id_variable_list = 
             if var in monthly_variable_list:
                 variable = var + "_mois{}".format(month)
                 dataframe[var] = input_df[variable].copy()
-                input_df.drop(variable,1) #drop sali_mois1 etc
+                input_df.drop(variable, 1, inplace=True) #drop sali_mois1 etc
             if var in id_variable_list:
                 dataframe[var] = input_df[var].copy()
-
-        input_df.drop(variable,1) #drop sali etc  # TODO : les drops semblent ne pas fonctionner inplace ? + pas forcément bien fait
         dataframe_by_period[period] = dataframe.copy()
 
+    for var in monthly_variable_list: #Drop les variables inputées en mensuel.
+        input_df.drop(var, 1, inplace=True)
 
     period = periods.period("{}".format(year))
     dataframe_by_period[period] = input_df.copy() #copy the rest of the non monthly inputed variables
-
-
 
     for period, dataframe in dataframe_by_period.iteritems():
         period_str = unicode(period)

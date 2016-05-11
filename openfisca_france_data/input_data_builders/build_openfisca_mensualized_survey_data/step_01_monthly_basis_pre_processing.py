@@ -94,15 +94,15 @@ def create_indivim_menagem(temporary_store = None, year = None):
 
 
 
-
-    #remove obs in eec_2 and/or eec_3 but not in eec_1
-
-    print (eec_2.ident.isin(eec_1.ident.values) & eec_3.ident.isin(eec_1.ident.values)).value_counts()
-    eec_3 = eec_3[eec_3.ident.isin(eec_1.ident.values)].copy()
-    eec_2 = eec_2[eec_2.ident.isin(eec_1.ident.values)].copy()
-    print (eec_2.ident.isin(eec_1.ident.values) & eec_3.ident.isin(eec_1.ident.values)).value_counts()
-
-    # On a dans eec_1 38% d'eecind, pourquoi ? (censé avoir 50% ?)
+    #
+    # #remove obs in eec_2 and/or eec_3 but not in eec_1
+    #
+    # print (eec_2.ident.isin(eec_1.ident.values) & eec_3.ident.isin(eec_1.ident.values)).value_counts()
+    # eec_3 = eec_3[eec_3.ident.isin(eec_1.ident.values)].copy()
+    # eec_2 = eec_2[eec_2.ident.isin(eec_1.ident.values)].copy()
+    # print (eec_2.ident.isin(eec_1.ident.values) & eec_3.ident.isin(eec_1.ident.values)).value_counts()
+    #
+    # # On a dans eec_1 38% d'eecind, pourquoi ? (censé avoir 50% ?)
 
 
 
@@ -138,7 +138,22 @@ def create_indivim_menagem(temporary_store = None, year = None):
 
 
 
+    for table in [eec_1, eec_2, eec_3, eecind]: #attention on décale de deux mois situation_mois1 correspond novembre de l'année précédente !!!
+        for trim in range(1,5):
+            for sp in range(0,3):
+                situation_mois = (trim*3 + sp -2)
+                table.loc[table.trim == trim,'situation_mois{}'.format(situation_mois) ] = table["sp{}".format(str(2 - sp).zfill(2))]
+                print situation_mois, str(2 - sp).zfill(2), trim
 
+            for sitmoi in range(1,situation_mois):
+                assert table.loc[table.rga == 1, 'situation_mois{}'.format(sitmoi)].isnull().all
+                table.loc[table.rga == 1, 'situation_mois{}'.format(sitmoi)] = table["sp{}".format(str(12 - sitmoi).zfill(2))]
+
+
+
+
+
+    import ipdb ; ipdb.set_trace()
 
     #pour comprendre
         # for trim in range(1,5):

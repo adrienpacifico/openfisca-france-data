@@ -9,7 +9,7 @@ from openfisca_france_data.input_data_builders.build_openfisca_mensualized_surve
     #step_03_fip as fip,
     #step_04_famille as famille,
     #step_05_foyer as foyer,
-    ##step_06_rebuild as rebuild,
+    step_06_rebuild as rebuild,
     #step_07_invalides as invalides,
     #step_08_final as final,
     )
@@ -29,6 +29,8 @@ if __name__ == '__main__':
 
     year = 2009
     pre_processing.create_indivim_menagem(year = 2009)
-    #fip.create_fip(year = year)
+    rebuild.create_totals_first_pass(year = year)
+    rebuild.create_totals_second_pass(year = year)
+    rebuild.create_final(year = year)
 
     log.info("Script finished after {}".format(time.time() - start))

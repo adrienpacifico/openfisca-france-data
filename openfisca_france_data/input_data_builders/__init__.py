@@ -51,9 +51,8 @@ def get_input_data_frame(year):
 
 def get_monthly_input_data_frame(year):
     openfisca_survey_collection = SurveyCollection.load(
-        collection = "openfisca", config_files_directory = config_files_directory)
-    openfisca_survey = openfisca_survey_collection.get_survey("openfisca_data_{}".format(year))
-
+        collection = "openfisca_monthly", config_files_directory = config_files_directory)
+    openfisca_survey = openfisca_survey_collection.get_survey("openfisca_data_monthly{}".format(year))
     dataframe_by_periods = dict()
     for period in openfisca_survey.tables:
         input_data_frame = openfisca_survey.get_values(table = period)
