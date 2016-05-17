@@ -291,13 +291,12 @@ def foyer_all(temporary_store = None, year = None):
     vars_sets = [set(var_list) for var_list in var_dict.values()]
     eligible_vars = (set().union(*vars_sets)).intersection(set(list(foyer.columns)))
 
-    log.info(
+    log.info(    # From 471 variables, we keep 414 eligibles variables
         u"From {} variables, we keep {} eligibles variables".format(
             len(set().union(*vars_sets)),
             len(eligible_vars),
             )
         )
-
     qui = ['vous', 'conj', 'pac1', 'pac2', 'pac3']
     #    err = 0
     #    err_vars = {}

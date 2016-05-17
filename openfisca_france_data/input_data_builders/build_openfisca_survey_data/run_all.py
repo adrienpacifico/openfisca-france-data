@@ -83,7 +83,7 @@ def run_all(year = None, check = False):
     survey.insert_table(name = table, data_frame = data_frame)
     openfisca_survey_collection.surveys.append(survey)
     collections_directory = openfisca_survey_collection.config.get('collections', 'collections_directory')
-    json_file_path = os.path.join(collections_directory, 'openfisca.json')
+    json_file_path = os.path.join(collections_directory, 'openfisca.json')  # TODO : bad name for the json
     openfisca_survey_collection.dump(json_file_path = json_file_path)
 
 

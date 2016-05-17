@@ -59,10 +59,10 @@ def get_monthly_input_data_frame(year):
         input_data_frame.rename(
             columns = dict(
                 alr = 'pensions_alimentaires_percues',
-                choi = 'cho',
+                choi = 'chomage_imposable',
                 cho_ld = 'chomeur_longue_duree',
                 fra = 'frais_reels',
-                rsti = 'rst',
+                rsti = 'retraite_imposable',
                 sali = 'salaire_imposable', #TODO : changer le salaire imposable mensualisé ici
                 ),
             inplace = True,

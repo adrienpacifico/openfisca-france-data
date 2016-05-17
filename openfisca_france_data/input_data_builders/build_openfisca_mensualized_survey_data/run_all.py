@@ -37,6 +37,7 @@ from openfisca_france_data.input_data_builders.build_openfisca_mensualized_surve
     step_03_monthly_basis_fip as fip,
     step_04_monthly_basis_famille as famille,
     step_05_monthly_basis_foyer as foyer,
+    #step_5_5_put_income_on_mothly_basis as monthly,
     step_06_monthly_basis_rebuild as rebuild,
     step_07_monthly_basis_invalides as invalides,
     step_08_monthly_basis_final as final,
@@ -54,6 +55,7 @@ log = logging.getLogger(__name__)
 def run_all(year = None, check = False):
 
     assert year is not None
+    #
     #pre_processing.create_indivim_menagem(year = year)
     #pre_processing.create_enfants_a_naitre(year = year)
     ##    try:
@@ -65,7 +67,9 @@ def run_all(year = None, check = False):
     #famille.famille(year = year)
     #foyer.sif(year = year)
     #foyer.foyer_all(year = year)
-    rebuild.create_totals_first_pass(year = year)
+    ##monthly.put_income_on_monthly_basis(year = year)
+    #rebuild.create_totals_first_pass(year = year)
+    rebuild.put_on_monthly_basis_indivim(year = year)
     rebuild.create_totals_second_pass(year = year)
     rebuild.create_final(year = year)
     invalides.invalide(year = year)
