@@ -57,7 +57,7 @@ __all__ = [
 OpenFiscaFranceTaxBenefitSystem = openfisca_france.init_country()
 openfisca_france_tax_benefit_system = OpenFiscaFranceTaxBenefitSystem()
 
-from openfisca_france.reforms.mensualisation import mensualisation_ir_7 as mensualisation_ir
+from openfisca_france.reforms.mensualisation import mensualisation_ir_8 as mensualisation_ir
 
 TaxBenefitSystem = reforms.make_reform(
     key = 'openfisca_france_data',
