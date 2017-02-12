@@ -75,6 +75,8 @@ def famille(temporary_store = None, year = None):
         smic = 1308
     elif year == 2009:
         smic = 1337
+    elif year == 2012:
+        smic = 1425.65
     else:
         log.info("smic non défini")
 
